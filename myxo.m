@@ -28,9 +28,37 @@ for i=1:lnb
     end
     k=k+nb(i);
 end
+dc=[nc];
+for it=1:nt
+    ldc=length(dc(it,:));
+    lr=rand(1,ldc);
+
+    for i=1:ldc
+        M=dc{it,i};
+        if lr(i)<0.5
+            newx=M(1,1)-D/M(1,2);
+
+        else
+            newx=M(1,1)+D/M(1,2);
+        end
+        while(newx<0 ||newx>L)
+            if(newx<0)
+                newx=-newx;
+%                 newx=0;
+            else
+                newx=2*L-newx;
+%               newx=L;
+            end
+        end
+        M(1,1)=newx;
+            
+        dc{it+1,i}=M;
+    end
+%     dc=[dc;ndc];
+end
 da=na;
 db=nb;
-dc=nc;
+% dc=nc;
 
 
 end
