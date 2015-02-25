@@ -7,7 +7,7 @@
 %L length of diffusion compartment C
 
 function [da,db,dc]=myxo(na,nb,lambda,D,dt,T,dx,L)
-t=0:dt:T;
+t=dt:dt:T;
 nt=length(t);
 x=0:dx:L;
 nx=length(x);
