@@ -1,4 +1,4 @@
-function myxoromr1()
+function [u5,u6]=myxoromr1()
 global L rpol
 format long
 L = 10;
@@ -25,7 +25,7 @@ ylabel('Time t')
 
 figure(2)
 grid off
-surf(x,t,u2,'EdgeColor', 'none')
+surf(x,t,u4,'EdgeColor', 'none')
 title('MinD(x)')
 xlabel('Distance x')
 ylabel('Time t')
@@ -118,10 +118,10 @@ s4=0.8/9;
 s4p=0.027;
 if x<rpol ||x>L-rpol
 %     N=400*(1+exp(-u(2)));
-    N=400*(1+u(2)/6000);
+    N=400*(1+u(4)/340);
     un=u(6)/N;
 else
-%     N=0;
+    N=0;
     un=1;
 end
 c = [1;1;1;1;1;1]; 
