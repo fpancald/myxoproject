@@ -1,11 +1,13 @@
 function [u5,u6]=myxoromr1()
-global L rpol
+global L rpol abcdl abcdr
 format long
 L = 10;
 rpol=1;
+abcdl=deg3interpol(rpol/2,rpol,1,0);
+abcdr=deg3interpol(L-rpol,L-rpol/2,0,1);
 m = 0;
-x = linspace(0,L,250);
-t = linspace(0,10000,20000);
+x = linspace(0,L,500);
+t = linspace(0,5000,10000);
 
 sol = pdepe(m,@pdex1pde,@pdex1ic,@pdex1bc,x,t);
 
@@ -104,7 +106,7 @@ end
 
 % --------------------------------------------------------------
 function [c,f,s] = pdex1pde(x,t,u,DuDx)
-global L rpol
+global L rpol abcdl abcdr
 DD=0.28*25/9;
 DE=0.6*25/9;
 DR=1;
@@ -117,14 +119,24 @@ s3=0.04/9;
 s4=0.8/9;
 s4p=0.027;
 
-if x<rpol ||x>L-rpol
+if x<rpol/2 ||x>L-rpol/2
 %     N=400*(1+exp(-u(2)));
     N=400*(1+u(4)/340);
-else
+elseif x>=rpol/2 && x<rpol
+%     ab=deg1interpol(rpol/2,rpol,400*(1+u(4)/340),0);
+%     N=ab(1)*x+ab(2);
+    abcd=abcdl*400*(1+u(4)/340);
+    N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
+elseif x>L-rpol && x<=L-rpol/2
+%     ab=deg1interpol(L-rpol,L-rpol/2,0,400*(1+u(4)/340));
+%     N=ab(1)*x+ab(2);
+    abcd=abcdr*400*(1+u(4)/340);
+    N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
+else 
     N=0;
 end
 Nc=1;
-un=max(N-u(6)/Nc,0);
+un=max(N-u(6)/Nc,0)/400;
 
 c = [1;1;1;1;1;1]; 
 f = [DD;1e-10;DE;1e-10;DR;1e-10] .* DuDx; 
