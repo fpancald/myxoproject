@@ -1,22 +1,47 @@
 function [u5,u6]=myxoromr1()
-global L rpol %abcdl abcdr
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE icR
 format long
-L = 10;
-rpol=1;
-% abcdl=deg3interpol(rpol/2,rpol,1,0);
-% abcdr=deg3interpol(L-rpol,L-rpol/2,0,1);
-m = 0;
-x = linspace(0,L,500);
-t = linspace(0,5000,10000);
+L = 10;                    %space domain size
+xsteps=floor(25*L+1);       %#space points
+T=10000;                    %time domain size
+tsteps=floor(2*T+1);        %#time points
+rpol=1;                     %radius of poles
+abcdl=deg3interpol(rpol/2,rpol,1,0);%deg3 pol (value=1 on left 0 on right der both 0)
+abcdr=deg3interpol(L-rpol,L-rpol/2,0,1);%deg3 pol (value=0 on left 1 on right der both 0)
+m = 0;                      %cartesian coordinates
+x = linspace(0,L,xsteps);   %space domain
+t = linspace(0,T,tsteps);   %time domain
+%MinCDE-like system parameters
+DD=0.28*25/9;
+DE=0.6*25/9;
+s1=20/9;
+s1p=0.028;
+s2=0.0063/9;
+s3=0.04/9;
+s4=0.8/9;
+s4p=0.027;
+icD=1500;
+icE=85;
+
+% RomR parameters
+DR=1;%diffusion rate
+r=0.1;%association rate
+R=0.05;%dissociation rate
+N0=400; %basic receptor density 
+Nc=1;%molecules per receptor
+Div=1;%division ON/OFF switch
+divT=T/2;%division start time (end at T)
+icR=3000;
+%%may need to add change in diffusion at division site
 
 sol = pdepe(m,@pdex1pde,@pdex1ic,@pdex1bc,x,t);
 
-u1 = sol(:,:,1);
-u2 = sol(:,:,2);
-u3 = sol(:,:,3);
-u4 = sol(:,:,4);
-u5 = sol(:,:,5);
-u6 = sol(:,:,6);
+u1 = sol(:,:,1);%MinD-like free
+u2 = sol(:,:,2);%bounded
+u3 = sol(:,:,3);%MinE-like free
+u4 = sol(:,:,4);%bounded
+u5 = sol(:,:,5);%RomR free
+u6 = sol(:,:,6);%bounded
 
 figure(1)
 grid off
@@ -28,7 +53,7 @@ ylabel('Time t')
 figure(2)
 grid off
 surf(x,t,u4,'EdgeColor', 'none')
-title('MinD(x)')
+title('MinE(x)')
 xlabel('Distance x')
 ylabel('Time t')
 % 
@@ -106,37 +131,38 @@ end
 
 % --------------------------------------------------------------
 function [c,f,s] = pdex1pde(x,t,u,DuDx)
-global L rpol %abcdl abcdr
-DD=0.28*25/9;
-DE=0.6*25/9;
-DR=1;
-r=0.1;
-R=0.05;
-s1=20/9;
-s1p=0.028;
-s2=0.0063/9;
-s3=0.04/9;
-s4=0.8/9;
-s4p=0.027;
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE
 
 if x<rpol/2 ||x>L-rpol/2
-%     N=400*(1+exp(-u(2)));
-    N=400*(1+u(4)/340);
+%     N=N0*(1+exp(-u(2)));%exp interaction
+    N=N0*(1+u(4)/(4*icE));%linear interaction
 elseif x>=rpol/2 && x<rpol
-    ab=deg1interpol(rpol/2,rpol,400*(1+u(4)/340),0);
-    N=ab(1)*x+ab(2);
-%     abcd=abcdl*400*(1+u(4)/340);
-%     N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
+%     ab=deg1interpol(rpol/2,rpol,N0*(1+u(4)/(4*icE)),0);%deg1 receptor spline
+%     N=ab(1)*x+ab(2);
+    abcd=abcdl*N0*(1+u(4)/(4*icE));
+    N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);%deg 3 receptor spline
 elseif x>L-rpol && x<=L-rpol/2
-    ab=deg1interpol(L-rpol,L-rpol/2,0,400*(1+u(4)/340));
-    N=ab(1)*x+ab(2);
-%     abcd=abcdr*400*(1+u(4)/340);
-%     N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
-else 
+%     ab=deg1interpol(L-rpol,L-rpol/2,0,N0*(1+u(4)/(4*icE)));
+%     N=ab(1)*x+ab(2);
+    abcd=abcdr*N0*(1+u(4)/(4*icE));
+    N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
+elseif Div==0 || t<T/2
     N=0;
+elseif x>(L-rpol)/2 && x<(L+rpol)/2
+    if x<L/2
+    %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
+    %     N=ab(1)*x+ab(2);
+        abcd=abcdr*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
+    else
+    %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
+    %     N=ab(1)*x+ab(2);
+        abcd=abcdl*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
+    end
 end
-Nc=1;
-un=max(N-u(6)/Nc,0)/400;
+
+un=max(N-u(6)/Nc,0)/N0;
 
 c = [1;1;1;1;1;1]; 
 f = [DD;1e-10;DE;1e-10;DR;1e-10] .* DuDx; 
@@ -145,8 +171,9 @@ s = [-s1*u(1)/(1+s1p*u(4))+s2*u(4)*u(2);+s1*u(1)/(1+s1p*u(4))-s2*u(4)*u(2);-s3*u
 end
 % --------------------------------------------------------------
 function u0 = pdex1ic(x)
- %u0=[2*rand*1500;0;2*rand*85;0;2*rand*3000;0];
- u0=[random('Normal',1500,100);0;random('Normal',85,25);0;random('Normal',3000,100);0];
+global icD icE icR
+ %u0=[2*rand*icD;0;2*rand*icE;0;2*rand*icR;0];
+ u0=[random('Normal',icD,100);0;random('Normal',icE,25);0;random('Normal',icR,100);0];
  
 % --------------------------------------------------------------
 end
