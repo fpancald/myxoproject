@@ -1,13 +1,15 @@
 function [u5,u6]=myxoromr1()
-global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE icR
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE icR abcdlc abcdrc
 format long
 L = 10;                    %space domain size
 xsteps=floor(25*L+1);       %#space points
 T=10000;                    %time domain size
 tsteps=floor(2*T+1);        %#time points
 rpol=1;                     %radius of poles
-abcdl=deg3interpol(rpol/2,rpol,1,0);%deg3 pol (value=1 on left 0 on right der both 0)
-abcdr=deg3interpol(L-rpol,L-rpol/2,0,1);%deg3 pol (value=0 on left 1 on right der both 0)
+abcdl=deg3interpol(rpol/2,rpol,1,0);%deg3 pol (value=1 on left 0 on right der both 0)%near left pole
+abcdr=deg3interpol(L-rpol,L-rpol/2,0,1);%deg3 pol (value=0 on left 1 on right der both 0)%near right pole
+abcdlc=deg3interpol((L-rpol)/2,L/2,0,1);%deg3 pol (value=0 on left 1 on right der both 0)%center left 
+abcdrc=deg3interpol(L/2,(L+rpol)/2,1,0);%deg3 pol (value=1 on left 0 on right der both 0)%center right
 m = 0;                      %cartesian coordinates
 x = linspace(0,L,xsteps);   %space domain
 t = linspace(0,T,tsteps);   %time domain
@@ -131,7 +133,7 @@ end
 
 % --------------------------------------------------------------
 function [c,f,s] = pdex1pde(x,t,u,DuDx)
-global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE abcdlc abcdrc
 
 if x<rpol/2 ||x>L-rpol/2 %poles
     
@@ -158,14 +160,14 @@ elseif x>(L-rpol)/2 && x<(L+rpol)/2 && Div==1 && t>divT%division ON,dvision star
         
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
-        abcd=abcdr*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        abcd=abcdlc*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
         
     else%right of center
         
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
-        abcd=abcdl*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        abcd=abcdrc*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
     end
     
