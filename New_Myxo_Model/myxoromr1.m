@@ -133,33 +133,44 @@ end
 function [c,f,s] = pdex1pde(x,t,u,DuDx)
 global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE
 
-if x<rpol/2 ||x>L-rpol/2
+if x<rpol/2 ||x>L-rpol/2 %poles
+    
 %     N=N0*(1+exp(-u(2)));%exp interaction
     N=N0*(1+u(4)/(4*icE));%linear interaction
-elseif x>=rpol/2 && x<rpol
+    
+elseif x>=rpol/2 && x<rpol %near left pole
+    
 %     ab=deg1interpol(rpol/2,rpol,N0*(1+u(4)/(4*icE)),0);%deg1 receptor spline
 %     N=ab(1)*x+ab(2);
     abcd=abcdl*N0*(1+u(4)/(4*icE));
     N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);%deg 3 receptor spline
-elseif x>L-rpol && x<=L-rpol/2
+    
+elseif x>L-rpol && x<=L-rpol/2%near right pole
+    
 %     ab=deg1interpol(L-rpol,L-rpol/2,0,N0*(1+u(4)/(4*icE)));
 %     N=ab(1)*x+ab(2);
     abcd=abcdr*N0*(1+u(4)/(4*icE));
     N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
-elseif Div==0 || t<T/2
-    N=0;
-elseif x>(L-rpol)/2 && x<(L+rpol)/2
-    if x<L/2
+    
+elseif x>(L-rpol)/2 && x<(L+rpol)/2 && Div==1 && t>divT%division ON,dvision started,and near center
+    
+    if x<L/2%left of center
+        
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
         abcd=abcdr*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
-    else
+        
+    else%right of center
+        
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
         abcd=abcdl*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
     end
+    
+else%not close to center,not poles or close, division OFF or division not started
+    N=0;
 end
 
 un=max(N-u(6)/Nc,0)/N0;
