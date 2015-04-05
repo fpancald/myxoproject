@@ -160,14 +160,14 @@ elseif x>(L-rpol)/2 && x<(L+rpol)/2 && Div==1 && t>divT%division ON,dvision star
         
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
-        abcd=abcdlc*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        abcd=abcdlc*N0*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
         
     else%right of center
         
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
-        abcd=abcdrc*N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        abcd=abcdrc*N0*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
     end
     
