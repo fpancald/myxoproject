@@ -1,5 +1,5 @@
 function [u5,u6]=myxoromr1()
-global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE icR abcdlc abcdrc
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE icR abcdlc abcdrc
 format long
 L = 10;                    %space domain size
 xsteps=floor(25*L+1);       %#space points
@@ -32,6 +32,7 @@ R=0.05;%dissociation rate
 N0=400; %basic receptor density 
 Nc=1;%molecules per receptor
 Div=1;%division ON/OFF switch
+Diff=0;%spatial diffusion ON/OFF switch
 divT=T/2;%division start time (end at T)
 icR=3000;
 %%may need to add change in diffusion at division site
@@ -133,7 +134,28 @@ end
 
 % --------------------------------------------------------------
 function [c,f,s] = pdex1pde(x,t,u,DuDx)
-global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div divT icD icE abcdlc abcdrc
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE abcdlc abcdrc
+if t>divT && Div==1 && Diff==1 && x>(L-rpol)/2 && x<(L+rpol)/2 %sp. diffusion and division ON near center
+    Ft=(t-divT)/(T-divT);
+    if x<L/2
+        abcd=-abcdlc*Ft;
+    else
+        abcd=-abcdrc*Ft;
+    end
+    DDtx=(abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4))*DD+DD;
+    DEtx=(abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4))*DE+DE;
+    DRtx=(abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4))*DR+DR;
+    DDtxDx=(3*abcd(1)*x^2+2*abcd(2)*x+abcd(3))*DD;
+    DEtxDx=(3*abcd(1)*x^2+2*abcd(2)*x+abcd(3))*DE;
+    DRtxDx=(3*abcd(1)*x^2+2*abcd(2)*x+abcd(3))*DR;
+else
+    DDtx=DD;
+    DEtx=DE;
+    DRtx=DR;
+    DDtxDx=0;
+    DEtxDx=0;
+    DRtxDx=0;
+end
 
 if x<rpol/2 ||x>L-rpol/2 %poles
     
@@ -155,19 +177,19 @@ elseif x>L-rpol && x<=L-rpol/2%near right pole
     N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
     
 elseif x>(L-rpol)/2 && x<(L+rpol)/2 && Div==1 && t>divT%division ON,dvision started,and near center
-    
+    Ft=(t-divT)/(T-divT);
     if x<L/2%left of center
         
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
-        abcd=abcdlc*N0*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        abcd=abcdlc*N0*(1+u(4)/(4*icE))*Ft;
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
         
     else%right of center
         
     %     ab=deg1interpol((L-rpol)/2,L/2,0,N0/2*(1+u(4)/(4*icE))*(t-divT)/(T-divT));
     %     N=ab(1)*x+ab(2);
-        abcd=abcdrc*N0*(1+u(4)/(4*icE))*(t-divT)/(T-divT);
+        abcd=abcdrc*N0*(1+u(4)/(4*icE))*Ft;
         N=abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4);
     end
     
@@ -178,7 +200,7 @@ end
 un=max(N-u(6)/Nc,0)/N0;
 
 c = [1;1;1;1;1;1]; 
-f = [DD;1e-10;DE;1e-10;DR;1e-10] .* DuDx; 
+f = [DDtx;1e-10;DEtx;1e-10;DRtx;1e-10] .* DuDx+[DDtxDx;0;DEtxDx;0;DRtxDx;0] .*u; 
 s = [-s1*u(1)/(1+s1p*u(4))+s2*u(4)*u(2);+s1*u(1)/(1+s1p*u(4))-s2*u(4)*u(2);-s3*u(1)*u(3)+s4*u(4)/(1+s4p*u(1));+s3*u(1)*u(3)-s4*u(4)/(1+s4p*u(1));-r*un*u(5)+R*u(6);r*un*u(5)-R*u(6)];
 
 end
