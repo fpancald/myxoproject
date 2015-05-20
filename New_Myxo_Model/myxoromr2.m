@@ -1,5 +1,5 @@
 function [u5,u6]=myxoromr2()% add post division time
-global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE icR abcdlc abcdrc u1endl u2endl u3endl u4endl u5endl u6endl u1endr u2endr u3endr u4endr u5endr u6endr
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE icR abcdlc abcdrc u1endl u2endl u3endl u4endl u5endl u6endl u1endr u2endr u3endr u4endr u5endr u6endr xsteps
 format long
 L = 10;                    %space domain size
 xsteps=floor(25*L+1);       %#space points
@@ -48,19 +48,19 @@ u4 = sol(:,:,4);%bounded
 u5 = sol(:,:,5);%RomR free
 u6 = sol(:,:,6);%bounded
 
-u1endl = sol(end,1:round(xstep/2+1),1);%MinD-like free
-u2endl = sol(end,1:round(xstep/2+1),2);%bounded
-u3endl = sol(end,1:round(xstep/2+1),3);%MinE-like free
-u4endl = sol(end,1:round(xstep/2+1),4);%bounded
-u5endl = sol(end,1:round(xstep/2+1),5);%RomR free
-u6endl = sol(end,1:round(xstep/2+1),6);%bounded
+u1endl = sol(end,1:round(xsteps/2),1);%MinD-like free
+u2endl = sol(end,1:round(xsteps/2),2);%bounded
+u3endl = sol(end,1:round(xsteps/2),3);%MinE-like free
+u4endl = sol(end,1:round(xsteps/2),4);%bounded
+u5endl = sol(end,1:round(xsteps/2),5);%RomR free
+u6endl = sol(end,1:round(xsteps/2),6);%bounded
 
-u1endr = sol(end,round(xstep/2+1):end,1);%MinD-like free
-u2endr = sol(end,round(xstep/2+1):end,2);%bounded
-u3endr = sol(end,round(xstep/2+1):end,3);%MinE-like free
-u4endr = sol(end,round(xstep/2+1):end,4);%bounded
-u5endr = sol(end,round(xstep/2+1):end,5);%RomR free
-u6endr = sol(end,round(xstep/2+1):end,6);%bounded
+u1endr = sol(end,round(xsteps/2+1):end,1);%MinD-like free
+u2endr = sol(end,round(xsteps/2+1):end,2);%bounded
+u3endr = sol(end,round(xsteps/2+1):end,3);%MinE-like free
+u4endr = sol(end,round(xsteps/2+1):end,4);%bounded
+u5endr = sol(end,round(xsteps/2+1):end,5);%RomR free
+u6endr = sol(end,round(xsteps/2+1):end,6);%bounded
 
 solpdl=pdepe(m,@pdex1pdepd,@pdex1icpdl,@pdex1bc,xleft,T+t);%after division left
 solpdr=pdepe(m,@pdex1pdepd,@pdex1icpdr,@pdex1bc,xright,T+t);%after division right
@@ -249,7 +249,9 @@ end
 % --------------------------------------------------------------
 function [c,f,s] = pdex1pdepd(x,t,u,DuDx)
 global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE abcdlc abcdrc
-
+DDtx=DD;
+DEtx=DE;
+DRtx=DR;
 
 if x<rpol/2 ||x>L-rpol/2 %poles
     
@@ -309,7 +311,7 @@ end
 
 % --------------------------------------------------------------
 function u0 = pdex1icpdl(x)
-global u1endl u2endl u3endl u4endl u5endl u6endl 
+global L u1endl u2endl u3endl u4endl u5endl u6endl xsteps
 i=round(x/(L/(xsteps-1)))+1;
  u0=[u1endl(i);u2endl(i);u3endl(i);u4endl(i);u5endl(i);u6endl(i)];
  
@@ -317,8 +319,8 @@ i=round(x/(L/(xsteps-1)))+1;
 end
 % --------------------------------------------------------------
 function u0 = pdex1icpdr(x)
-global u1endr u2endr u3endr u4endr u5endr u6endr 
-i=round(x/(L/(xsteps-1)))+1;
+global L u1endr u2endr u3endr u4endr u5endr u6endr xsteps
+i=round((x-L/2)/(L/(xsteps-1)))+1;
  u0=[u1endr(i);u2endr(i);u3endr(i);u4endr(i);u5endr(i);u6endr(i)];
 
 % --------------------------------------------------------------
