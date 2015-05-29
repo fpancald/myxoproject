@@ -1,0 +1,99 @@
+%% Based on a TeXnicCenter-Template by Gyorgy SZEIDL.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%------------------------------------------------------------
+%
+\documentclass{amsart}
+%
+%----------------------------------------------------------
+% This is a sample document for the AMS LaTeX Article Class
+% Class options
+%        -- Point size:  8pt, 9pt, 10pt (default), 11pt, 12pt
+%        -- Paper size:  letterpaper(default), a4paper
+%        -- Orientation: portrait(default), landscape
+%        -- Print size:  oneside, twoside(default)
+%        -- Quality:     final(default), draft
+%        -- Title page:  notitlepage, titlepage(default)
+%        -- Start chapter on left:
+%                        openright(default), openany
+%        -- Columns:     onecolumn(default), twocolumn
+%        -- Omit extra math features:
+%                        nomath
+%        -- AMSfonts:    noamsfonts
+%        -- PSAMSFonts  (fewer AMSfonts sizes):
+%                        psamsfonts
+%        -- Equation numbering:
+%                        leqno(default), reqno (equation numbers are on the right side)
+%        -- Equation centering:
+%                        centertags(default), tbtags
+%        -- Displayed equations (centered is the default):
+%                        fleqn (equations start at the same distance from the right side)
+%        -- Electronic journal:
+%                        e-only
+%------------------------------------------------------------
+% For instance the command
+%          \documentclass[a4paper,12pt,reqno]{amsart}
+% ensures that the paper size is a4, fonts are typeset at the size 12p
+% and the equation numbers are on the right side
+%
+\usepackage{amsmath}%
+\usepackage{amsfonts}%
+\usepackage{amssymb}%
+\usepackage{graphicx}
+%------------------------------------------------------------
+% Theorem like environments
+%
+\newtheorem{theorem}{Theorem}
+\theoremstyle{plain}
+\newtheorem{acknowledgement}{Acknowledgement}
+\newtheorem{algorithm}{Algorithm}
+\newtheorem{axiom}{Axiom}
+\newtheorem{case}{Case}
+\newtheorem{claim}{Claim}
+\newtheorem{conclusion}{Conclusion}
+\newtheorem{condition}{Condition}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{corollary}{Corollary}
+\newtheorem{criterion}{Criterion}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{exercise}{Exercise}
+\newtheorem{lemma}{Lemma}
+\newtheorem{notation}{Notation}
+\newtheorem{problem}{Problem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{solution}{Solution}
+\newtheorem{summary}{Summary}
+\numberwithin{equation}{section}
+%--------------------------------------------------------
+\begin{document}
+Step-by-step description of biological process in movement, reversal, division, and restart of reversal mechanism in M. Xanthus (As we are considering it in our current model)\\\\
+Biological background and observation from experiment\\
+\begin{itemize}
+\item The Frz system starts the whole motility engine, with different proteins in the system interacting with each other and ultimately influencing the protein in control of the pili
+\item the proteins MglA and MglB directly regulate the motility engines through retraction of pili on one side and formation of the same on the other side
+\item the protein RomR constitutes the actual connections between the Frz system and MglA and MglB
+\item the interactions between proteins in the Frz systems is known, as well as the interactions between RomR, MglA and MglB, but none is known about the way that the Frz system influences RomR
+\item during forward movement the wild type Myxo cell presents 2 zones of higher concentration of RomR protein at the two cell ends(poles).
+\item of this two poles the one in the back, or lagging pole, seem to present an higher concentration during the forward motion
+\item upon reversal of direction, or slightly after the concentrations at the two poles changes so that the former lagging pole (now leading pole) loses concentration in favor of the former leading pole (now lagging pole)
+\item hyper-reversing mutants seem to preserve these characteristics, but also present additional high concentration pockets in fix points along the cell body
+\item during division (in the wild type) we can observe the formation of a 3rd pole in correspondence to the division cite, also during division the cell completely stops (turn OFF engines)
+\item immediately after division this 3rd pole splits in an asymmetric way between the two daughter cells
+\item this asymmetry seems to be leading the two new cells to move in opposite directions after they separate
+\item after division each cell will have on average only half of the proteins carried by the mother cell at the moment of division and will be approximately half the size
+\end{itemize}
+Model assumption and prediction\\
+\begin{itemize}
+\item We assume that RomR proteins can bound to the cell membrane only when and where active receptors are present,and these receptors are only localized at the cell ends (in the wild type) (we made this assumptions as consequence of our experimental observations of both wild type and hyper-reversing)
+\item receptors can be active or inactive (or maybe be created and destroyed) by additional chemicals in the cell body (our top candidate are elements of the Frz system)
+\item these chemicals most likely present an oscillatory behavior similar to the MinCDE system in E. Coli with an higher concentration wave proceeding periodically from one cell end to the other (once the hypothesis on the receptors was established this seemed a natural way of explaining the asymmetry in concentration)
+\item during division new cell ends are formed at the septum, and therefore new receptors are formed
+\item also during division the cross-sectional area around the center changes inducing a change in diffusion around this point (either by changing the diffusion coefficient or adding additional terms due to the cross-sectional area and its space and time derivatives)
+\item at the end of division we can observe a clear asymmetry between the two daughter cells in the distribution of RomR (both comparing the two new poles and their total concentrations)
+\item our simulation also show that during division the concentrations at the two poles decrease in favor of the new pole
+\item when starting our simulations with random initial condition we can immediately observe the formation of the two poles, but only after a certain period of time we can observe oscillations of one brighter pole form one cell end to the other
+\item the time period before oscillation depends on the specific realization of our random initial conditions (this could explain why after division new cells may need different times to restart the reversal mechanisms, and also why some cells reverse many times between division and other don't) 
+\end{itemize}
+\end{document}
