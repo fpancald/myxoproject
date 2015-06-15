@@ -135,7 +135,7 @@ end
 
 % --------------------------------------------------------------
 function [c,f,s] = pdex1pde(x,t,u,DuDx)
-global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE abcdlc abcdrc
+global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE abcdlc abcdrc A0
     DDtx=DD;
     DEtx=DE;
     DRtx=DR;
