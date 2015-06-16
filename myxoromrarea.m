@@ -140,15 +140,15 @@ global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT
     DEtx=DE;
     DRtx=DR;
 if t>divT && Div==1 && Diff==1 && x>(L-rpol)/2 && x<(L+rpol)/2 %sp. diffusion and division ON near center
-    Ft=(t-divT)/(T-divT);
+    Ft=1/(T-divT);
     if x<L/2
         abcd=-abcdlc*Ft;
     else
         abcd=-abcdrc*Ft;
     end
-    Atx=(abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4))*A0+A0;
-    AtxDt=(abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4))*A0/(t-divT)+A0;
-    AtxDx=(3*abcd(1)*x^2+2*abcd(2)*x+abcd(3))*A0;
+    Atx=(abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4))*(t-divT)*A0+A0;
+    AtxDt=(abcd(1)*x^3+abcd(2)*x^2+abcd(3)*x+abcd(4))*A0;
+    AtxDx=(3*abcd(1)*x^2+2*abcd(2)*x+abcd(3))*A0*(t-divT);
 else
     Atx=A0;
     AtxDx=0;
