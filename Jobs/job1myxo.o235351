@@ -1,0 +1,24 @@
+ModuleCmd_Load.c(208):ERROR:105: Unable to locate a modulefile for 'mpich2/1.4.1-intel'
+/afs/crc.nd.edu/user/f/fpancald: Permission denied.
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2014 The MathWorks, Inc.
+                    R2014a (8.3.0.532) 64-bit (glnxa64)
+                             February 11, 2014
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+>> >> [Warning: Failure at t=9.994316e+03.  Unable to meet integration tolerances
+without reducing the step size below the smallest value allowed (2.910383e-11)
+at time t.] 
+[> In ode15s at 730
+  In pdepe at 289
+  In myxoromrarea at 41] 
+[Warning: Time integration has failed. Solution is available at requested time
+points up to t=9.994000e+03.] 
+[> In pdepe at 303
+  In myxoromrarea at 41] 
+>> [Warning: Directory already exists.] 
+>> >> >> 
