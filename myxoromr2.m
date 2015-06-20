@@ -1,4 +1,4 @@
-function [u5,u6]=myxoromr2()% add post division time
+function [u4,u5,u6,u4pdl,u5pdl,u6pdl,u4pdr,u5pdr,u6pdr]=myxoromr2()% add post division time
 global L T rpol abcdl abcdr DD DE DR r R s1 s1p s2 s3 s4 s4p N0 Nc Div Diff divT icD icE icR abcdlc abcdrc u1endl u2endl u3endl u4endl u5endl u6endl u1endr u2endr u3endr u4endr u5endr u6endr xsteps
 format long
 L = 10;                    %space domain size
@@ -81,25 +81,25 @@ u4pdr = solpdr(:,:,4);%bounded
 u5pdr = solpdr(:,:,5);%RomR free
 u6pdr = solpdr(:,:,6);%bounded
 
-figure(1)
-grid off
-surf(x,t,u5+u6,'EdgeColor', 'none')
-title('RomR')
-xlabel('Distance x')
-ylabel('Time t')
-hold on
-surf(xl,t+T,u5pdl+u6pdl,'EdgeColor', 'none')
-surf(xr+0.2*ones(length(xr)),t+T,u5pdr+u6pdr,'EdgeColor', 'none')
-
-figure(2)
-grid off
-surf(x,t,u4,'EdgeColor', 'none')
-title('MinE(x)')
-xlabel('Distance x')
-ylabel('Time t')
-hold on
-surf(xl,t+T,u4pdl,'EdgeColor', 'none')
-surf(xr+0.2*ones(length(xr)),t+T,u4pdr,'EdgeColor', 'none')
+% figure(1)
+% grid off
+% surf(x,t,u5+u6,'EdgeColor', 'none')
+% title('RomR')
+% xlabel('Distance x')
+% ylabel('Time t')
+% hold on
+% surf(xl,t+T,u5pdl+u6pdl,'EdgeColor', 'none')
+% surf(xr+0.2*ones(length(xr)),t+T,u5pdr+u6pdr,'EdgeColor', 'none')
+% 
+% figure(2)
+% grid off
+% surf(x,t,u4,'EdgeColor', 'none')
+% title('MinE(x)')
+% xlabel('Distance x')
+% ylabel('Time t')
+% hold on
+% surf(xl,t+T,u4pdl,'EdgeColor', 'none')
+% surf(xr+0.2*ones(length(xr)),t+T,u4pdr,'EdgeColor', 'none')
 % 
 % figure(2)
 % grid off
