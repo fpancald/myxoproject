@@ -1,0 +1,166 @@
+%% Based on a TeXnicCenter-Template by Gyorgy SZEIDL.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%------------------------------------------------------------
+%
+\documentclass{amsart}
+%
+%----------------------------------------------------------
+% This is a sample document for the AMS LaTeX Article Class
+% Class options
+%        -- Point size:  8pt, 9pt, 10pt (default), 11pt, 12pt
+%        -- Paper size:  letterpaper(default), a4paper
+%        -- Orientation: portrait(default), landscape
+%        -- Print size:  oneside, twoside(default)
+%        -- Quality:     final(default), draft
+%        -- Title page:  notitlepage, titlepage(default)
+%        -- Start chapter on left:
+%                        openright(default), openany
+%        -- Columns:     onecolumn(default), twocolumn
+%        -- Omit extra math features:
+%                        nomath
+%        -- AMSfonts:    noamsfonts
+%        -- PSAMSFonts  (fewer AMSfonts sizes):
+%                        psamsfonts
+%        -- Equation numbering:
+%                        leqno(default), reqno (equation numbers are on the right side)
+%        -- Equation centering:
+%                        centertags(default), tbtags
+%        -- Displayed equations (centered is the default):
+%                        fleqn (equations start at the same distance from the right side)
+%        -- Electronic journal:
+%                        e-only
+%------------------------------------------------------------
+% For instance the command
+%          \documentclass[a4paper,12pt,reqno]{amsart}
+% ensures that the paper size is a4, fonts are typeset at the size 12p
+% and the equation numbers are on the right side
+%
+\usepackage{amsmath}%
+\usepackage{amsfonts}%
+\usepackage{amssymb}%
+\usepackage{graphicx}
+%------------------------------------------------------------
+% Theorem like environments
+%
+\newtheorem{theorem}{Theorem}
+\theoremstyle{plain}
+\newtheorem{acknowledgement}{Acknowledgement}
+\newtheorem{algorithm}{Algorithm}
+\newtheorem{axiom}{Axiom}
+\newtheorem{case}{Case}
+\newtheorem{claim}{Claim}
+\newtheorem{conclusion}{Conclusion}
+\newtheorem{condition}{Condition}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{corollary}{Corollary}
+\newtheorem{criterion}{Criterion}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{exercise}{Exercise}
+\newtheorem{lemma}{Lemma}
+\newtheorem{notation}{Notation}
+\newtheorem{problem}{Problem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{solution}{Solution}
+\newtheorem{summary}{Summary}
+\numberwithin{equation}{section}
+%--------------------------------------------------------
+\begin{document}
+One of the possible problems with our 1D model is the hypothesis that the diffusion coefficient $D$ should not be constant around the septum during division. In the model in fact we consider this coefficient to be a function $D=D(x,t)$ of space and time as follows
+\begin{equation}
+   D(x,t) = \left\{
+     \begin{array}{lcr}
+       D_0,& x\in [0, L/2-\epsilon L]\cap [L/2+\epsilon L, L] & \forall t\\
+       D_0,& x\in [L/2-\epsilon L,L/2+\epsilon L] & t\leq T_d\\
+ D_0\frac{(t-T_d)}{(T_f-T_d)}(1-F(x)) ,& x\in [L/2-\epsilon L,L/2+\epsilon L & t>T_d
+
+     \end{array}
+   \right.
+\end{equation}
+with $D_0=const$ is the initially uniform diffusion coefficient, $[0,L]$ is the length of our domain (i.e. the bacteria, in simulation I am taking $L=10$, but this parameter can be eliminated through nondimensionalization), $\epsilon$ is a small number so that $\epsilon L$ represent the portion of the bacteria cell that is influenced by the division mechanics on the left and on the right of the septum (In my simulation $\epsilon=0.1$ or $0.05$), $T_d$ is the time at which division starts, $T_f$ is the time at which it ends, and $F(x)$ is an appropriate polynomial spline function (I am using degree 3 for now) defined on $[L/2-\epsilon L,L/2]$ and $[L/2,L/2+\epsilon L]$ such that
+\begin{equation}
+   \left\{
+     \begin{array}{lr}
+       F(x)=1,& x=L/2\\
+       F(x)=0,& x=L/2-\epsilon L,L/2+\epsilon L\\
+       \frac{\partial F(x)}{\partial x}=0,& x=L/2-\epsilon L,L/2,L/2+\epsilon L\\
+
+     \end{array}
+   \right.
+\end{equation}
+Then our main equations are as follows
+\begin{equation}
+\frac{\partial C}{\partial t}=\frac{\partial}{\partial x}(D\frac{\partial C}{\partial x})- r(n-c)C+R c
+\end{equation}
+\begin{equation}
+\frac{\partial c}{\partial t}=r(n-c)C+R c
+\end{equation}
+where $C$ is the cytoplasmic RomR, $c$ is the membrane bound RomR, $n=n(x,t)$ is the number of active receptors (see model report for more details), $r$ is the binding rate (per available active receptor) and $R$ is the unbinding rate.\\
+Since $D=D(x)$ the equation for $C$ then becomes
+\begin{equation}
+\frac{\partial C}{\partial t}=\frac{\partial D}{\partial x}\frac{\partial C}{\partial x}+D\frac{\partial^2 C}{\partial x^2}- r(n-c)C+R c
+\end{equation}
+This is my model before trying to implement the cross-sectional area idea.\\\\
+One flow of this as pointed out by Shant and Dr. Shrout was that as a physical quantity in an homogeneous media (but I am not sure if we can assume it to really be homogeneous) should be constant. Therefore the change into the reaction diffusion equation should come from mechanical constraint instead that from changes in the diffusion coefficient.\\\\
+At this point Dr. Jilkine pointed me to sections 9.2 and 9.3 of Edelstein-Keshet book "Mathematical Models in Biology" (see link pages 393-397) in which the author derives a conservation equation for motion in 1D along a tube with varying cross-sectional area. I am reporting the final equation here ( eq (33) in the chapter; please see the link to the chapter for more details)
+\begin{equation}
+\frac{\partial C(x,t)}{\partial t}=-\frac{\partial J(x,t)}{\partial x}\pm\sigma(x,t)-\frac{1}{A(x,t)}\left[J(x,t)\frac{\partial A(x,t)}{\partial x}+C(x,t)\frac{\partial A(x,t)}{\partial t}\right]
+\end{equation}
+where $A(x,t)$ is the cross-sectional area at time $t$ and position $x$, $J(x,t)$ is the flux, and $\sigma$ represent source/sink terms.\\\\
+Then the next step to obtain a diffusion equation was to determine a relation for $J$ in terms of $C$. To do this I simply applied Fick's Law $J = -D \frac{\partial C}{\partial x} $ (with $D$ constant).
+\\
+Obtaining the following new equation for our $C$
+\begin{equation}
+\frac{\partial C(x,t)}{\partial t}= D\frac{\partial^2 C(x,t)}{\partial x^2}-\frac{1}{A(x,t)}\left[-D\frac{\partial C(x,t)}{\partial x}\frac{\partial A(x,t)}{\partial x}+C(x,t)\frac{\partial A(x,t)}{\partial t}\right]- r(n-c)C+R c
+\end{equation}
+However, when I tried to use this in the simulation the total concentration started to grow linearly in time during division. Since we have no production this should not happen. And the conservation of mass could not be the problem, so I tried to look into the derivation of Fick's law to understand if maybe there was some assumption that was not compatible with changing cross-sectional area.\\
+
+I proceed from a standard derivation that I believe you also use in your class.
+
+We consider particles moving through a random walk in one dimension with length scale $\Delta x$ and time scale $\Delta t$, with $N(x, t)$ number of particles at position $x$ at time $t$.
+
+At each given time $t$ on average half of the particles would move on the left $x-\Delta x$ and half on the right right $x+\Delta x$. Therefore the net movement to the right is:
+
+\begin{equation}
+\frac{1}{2}\left[N(x + \Delta x, t) - N(x, t)\right]
+\end{equation}
+
+Since the flux, J, is this net movement of particles across some area element "A", normal to the random walk during the interval of time $\Delta t$ we can now write:
+
+\begin{equation}
+J = - \frac{1}{2} \left[\frac{ N(x + \Delta x, t)}{A \Delta t} - \frac{ N(x, t)}{A \Delta t}\right]
+\end{equation} 
+Multiplying  by $(\Delta x)^2$ we get:
+
+
+\begin{equation}
+ J = -\frac{\left(\Delta x\right)^2}{2 \Delta t}\left[\frac{N(x + \Delta x, t)}{A (\Delta x)^2} - \frac{N(x, t)}{A (\Delta x)^2}\right]
+ \end{equation}
+
+Now we note that concentration is defined as particles per unit volume $V=A\Delta x$ giving us $C (x, t) = \frac{N(x, t)}{A \Delta x}=\frac{N(x, t)}{V}$.
+
+Now setting $D=\frac{\left(\Delta x\right)^2}{2 \Delta t}$ our equation becomes:
+
+\begin{equation}
+ J = -D \left[\frac{C (x + \Delta x, t)}{\Delta x} - \frac{C (x , t)}{\Delta x}\right]
+ \end{equation}
+
+And in the limit for $\Delta x\rightarrow 0$ 
+
+\begin{equation}
+ J = - D \frac{\partial C}{\partial x}  
+ \end{equation}
+ 
+ When I re-considering this proof for our case however I am not sure if the passage between eqn. (0.10) and (0.11) can be done as described here, since in our case $A$ depends on $x$ and therefore as two different values at $x$ and $x+\Delta x$. \\\\
+ 
+ Moreover I believe that, while in the derivation of Edelstein-Keshet the concentration is intended per unit volume at position $x$, in our experiments what we observe at position $x$ is actually the total concentration at the cross-section corresponding to position $x$ (i.e. $C(x,t)A(x,t)$) making equation (28) page 396 the one more relevant to our case
+\begin{equation}
+\frac{[\partial C(x,t)A(x,t)]}{\partial t}=-\frac{[\partial J(x,t)A(x,t)]}{\partial x}\pm[\sigma(x,t)A(x,t)]
+\end{equation}
+Where our $C$ is actually $CA$, and $JA$ is the net movement to the right.\\
+My idea is that if we do a local rescaling changing $CA\rightarrow C,JA\rightarrow J,\sigma A\rightarrow \sigma$ and derive again the new flux $J$ using Fick's Law (now that we have eliminated the dependance on $A$) we should obtain equation (0.3) where the fact that our flux incorporates varying $A$ reflects in a non-constant diffusion coefficient $D$. \\
+I am trying to formally describe this last point, but I do not have a proof yet.
+ 
+\end{document}
