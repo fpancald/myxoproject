@@ -1,0 +1,9 @@
+function [x,y]=truncircsh(a,b,r,x1,x2,xm,w,L,xnew,ynew,xold,yold)
+tol=1e-6;
+x=xnew;
+y=ynew;
+while (abs(x1-x)>tol || x-x2>tol)
+    x=x+(x-xold)/2;
+    x=x+(x-xold)/2;
+end
+end

@@ -98,3 +98,25 @@ figure(8)
 surf(xxx,t,Cnd','Edgecolor','None')
 figure(9)
 surf(xxx,t,Cd','Edgecolor','None')
+figure(12)
+kk=0;
+for k=0:20:T
+    kk=kk+1;
+    subplot(3,2,kk)
+    if k~=T
+        plot(xxx,Cnd(:,k+1)')
+    else
+        plot(xxx,Cnd(:,T)')
+    end
+end
+figure(11)
+kk=0;
+for k=0:20:T
+    kk=kk+1;
+    subplot(3,2,kk)
+    if k~=T
+        plot(xx,Cnorm(:,k+1)')
+    else
+        plot(xx,Cnorm(:,T)')
+    end
+end

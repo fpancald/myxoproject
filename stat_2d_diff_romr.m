@@ -117,11 +117,17 @@ while t<T+1
         
     else
     
-        angle=rand*2*pi;
-        dist=randn*D;
+%         angle=rand*pi;
+%         dist=randn*D;
+% 
+%         xnew=xp(n,t-1)+cos(angle)*dist;
+%         ynew=yp(n,t-1)+sin(angle)*dist;
+        
+        distx=randn*D/sqrt(2);
+        disty=randn*D/sqrt(2);
 
-        xnew=xp(n,t-1)+cos(angle)*dist;
-        ynew=yp(n,t-1)+sin(angle)*dist;
+        xnew=xp(n,t-1)+distx;
+        ynew=yp(n,t-1)+disty;
     end
     
 %     if xnew<4
