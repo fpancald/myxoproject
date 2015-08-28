@@ -1,4 +1,4 @@
-function [xp,yp] = stat_2d_diff_romr(D,x1,x2,xm,w,N,T,L)
+function [xp,yp] = stat_2d_diff_romr3(D,x1,x2,xm,w,N,T,L)
 %derive Fick's law-like relation from statistical simulation of proteins
 %moving in a 2d domain changing in time and space
 % D=0.025;
@@ -122,62 +122,65 @@ while t<T+1
 % 
 %         xnew=xp(n,t-1)+cos(angle)*dist;
 %         ynew=yp(n,t-1)+sin(angle)*dist;
-        
+     
+        xold=xp(n,t-1);
+        yold=yp(n,t-1);
+    if yold>w/2 && xold>x1 && xold<xm
+        ylim=(sqrt(r(t+1)^2-(xold-a(t)).^2)+b(t))/ynorm(t);%circle
+        if yold>ylim
+            yold=ylim;
+        end
+    elseif yold<w/2 && xold>x1 && xold<xm
+        ylim=w-(sqrt(r(t+1)^2-(xold-a(t)).^2)+b(t))/ynorm(t);%circle
+        if yold<ylim
+            yold=ylim;
+        end
+    elseif yold>w/2 && xold>xm && xold<x2
+        ylim=(sqrt(r(t+1)^2-((2*xm-xold)-a(t)).^2)+b(t))/ynorm(t);%circle
+        if yold>ylim
+            yold=ylim;
+        end
+    elseif yold<w/2 && xold>xm && xold<x2
+        ylim=w-(sqrt(r(t+1)^2-((2*xm-xold)-a(t)).^2)+b(t))/ynorm(t);%circle
+        if yold<ylim
+            yold=ylim;
+        end
+    end
         distx=randn*D/sqrt(2);
         disty=randn*D/sqrt(2);
-
-        xnew=xp(n,t-1)+distx;
-        ynew=yp(n,t-1)+disty;
+        xnew=xold+distx;
+        ynew=yold+disty;
     end
     
-%     if xnew<4
-%         xnew=6-(4-xnew);
-%     elseif xnew>6
-%         xnew=4+(xnew-6);
-%     end
-%     xp(i,t)=xnew;
-%     yp(i,t)=ynew;
-
-% %all domain
-% if xnew<0
-%         t=t-1;
-%     elseif xnew>L
-%         t=t-1;
-
-%close to center
-if xnew<x1
-        t=t-1;
-    elseif xnew>x2
-        t=t-1;
+tol=1e-6;
+if xnew<x1-tol || xnew>x2+tol
+        [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
 else
-    xp(n,t)=xnew;
-    yp(n,t)=ynew;
-    
     if ynew<0 || ynew>w
-        t=t-1;
+        [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
     elseif ynew>w/2 && xnew>x1 && xnew<xm
 %         ylim=sqrt(a(t)-xnew)+b(t);%parabola
         ylim=(sqrt(r(t+1)^2-(xnew-a(t)).^2)+b(t))/ynorm(t);%circle
         if ynew>ylim
-            t=t-1;
+            [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
         end
     elseif ynew<w/2 && xnew>x1 && xnew<xm
 %         ylim=1-(sqrt(a(t)-xnew)+b(t));%parabola
         ylim=w-(sqrt(r(t+1)^2-(xnew-a(t)).^2)+b(t))/ynorm(t);%circle
         if ynew<ylim
-            t=t-1;
+            [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
         end
     elseif ynew>w/2 && xnew>xm && xnew<x2
 %         ylim=sqrt(a(t)-(2*xm-xnew))+b(t);%parabola
         ylim=(sqrt(r(t+1)^2-((2*xm-xnew)-a(t)).^2)+b(t))/ynorm(t);%circle
         if ynew>ylim
-            t=t-1;
+            [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
         end
     elseif ynew<w/2 && xnew>xm && xnew<x2
 %         ylim=1-(sqrt(a(t)-(2*xm-xnew))+b(t));%parabola
         ylim=w-(sqrt(r(t+1)^2-((2*xm-xnew)-a(t)).^2)+b(t))/ynorm(t);%circle
         if ynew<ylim
-            t=t-1;
+            [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
         end
         %uncomment if all domain
 %     elseif ynew>w/2 && xnew<Al
@@ -203,7 +206,8 @@ else
     end
     
 end
-    
+    xp(n,t)=xnew;
+    yp(n,t)=ynew;
     t=t+1;
 end
 end
