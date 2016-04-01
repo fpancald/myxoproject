@@ -1,0 +1,10 @@
+%Ntask=#of task in array job
+%state=domain state: 0 fixed, 1 changing
+%Type= initial distribution: 0 uniform, 1 half uniform, 2 60-40 uniform
+%Rswitch= receptor switch: 0 off, 1 on
+function []=diffsavesplit(Ntask,state,Type,Rswitch)
+tic
+rng('shuffle');
+arraysplit
+toc
+end

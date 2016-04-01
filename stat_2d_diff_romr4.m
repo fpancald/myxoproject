@@ -1,7 +1,6 @@
 %Derive Fick's law-like relation from statistical simulation of proteins
 %moving in a 2d domain changing in time and space
-%use truncation condition at the boundary (i.e. if the step goes out of the
-%boundary truncate the step at boundary)
+%use Reflective condition at the boundary (i.e. incidence angle respect to normal to surface is specular to reflective angle)
 %Input:
 %D:diffusion coefficient in 2D domain
 %x1,x2: left and right bound for the zone close to the center (x-coord.)
@@ -14,14 +13,14 @@
 %Output:
 %xp,yp: NxT matrices containing the x and y coord. of each particle at each time step
 %dt: time step length correspondent to the diffusion coeffcient and lenght of space step dx chosen
-function [xp,yp,dt] = stat_2d_diff_romr3(D,x1,x2,xm,w,N,T,L,Nx,state)
+function [xp,yp,dt] = stat_2d_diff_romr4(D,x1,x2,xm,w,N,T,L,Nx,state)
 xl=x1:0.01:xm;  %left of center x-coord.
 xr=xm:0.01:x2;  %right of center x-coord
 y=0:0.01:w;     %y domain 
 dx=(x2-x1)/Nx;  %space step
 dt=dx^2/(2*D);  %time step
 sigma=dx;       %std of random step in 1 dimension
-
+xtol=dx/1000;
 %poles shape (set the equations for poles at domain extremities)
 %not yet used in simulation
 B=w/2;
@@ -128,26 +127,30 @@ while t<T+1
      %possible here)
         xold=xp(n,t-1);
         yold=yp(n,t-1);
-        if yold>w/2 && xold>x1 && xold<xm
+        if yold>=w/2 && xold>=x1 && xold<=xm
             ylim=(sqrt(r(t+1)^2-(xold-a(t)).^2)+b(t))/ynorm(t);%circle
-            if yold>ylim
-                yold=ylim;
+            if yold>=ylim
+                yold=ylim-xtol;
             end
-        elseif yold<w/2 && xold>x1 && xold<xm
+        elseif yold<=w/2 && xold>=x1 && xold<=xm
             ylim=w-(sqrt(r(t+1)^2-(xold-a(t)).^2)+b(t))/ynorm(t);%circle
-            if yold<ylim
-                yold=ylim;
+            if yold<=ylim
+                yold=ylim+xtol;
             end
-        elseif yold>w/2 && xold>xm && xold<x2
+        elseif yold>=w/2 && xold>=xm && xold<=x2
             ylim=(sqrt(r(t+1)^2-((2*xm-xold)-a(t)).^2)+b(t))/ynorm(t);%circle
-            if yold>ylim
-                yold=ylim;
+            if yold>=ylim
+                yold=ylim-xtol;
             end
-        elseif yold<w/2 && xold>xm && xold<x2
+        elseif yold<=w/2 && xold>=xm && xold<=x2
             ylim=w-(sqrt(r(t+1)^2-((2*xm-xold)-a(t)).^2)+b(t))/ynorm(t);%circle
-            if yold<ylim
-                yold=ylim;
+            if yold<=ylim
+                yold=ylim+xtol;
             end
+        elseif xold<=x1 %need to think of better fix %this can happen because of the tollerance in refl and trunc
+            xold=x1+xtol;
+        elseif xold>=x2
+            xold=x2-xtol;
         end
 %         distx=randn*D/sqrt(2);
 %         disty=randn*D/sqrt(2);
@@ -156,41 +159,43 @@ while t<T+1
         xnew=xold+distx;
         ynew=yold+disty;
     
-    
+        damp=1;%linear damping coefficient for reflection length
+%         [xnew,ynew]=reflectbc(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold,dx,damp);
 %check for new position inside current boundaries
 %1st check x-coord left and right bounds
 %2nd check y-coord overall upper and lower bound
 %3rd check (for each sector that local ylimit is not excedeed (upper or lower)
         tol=1e-6;
         if xnew<x1-tol || xnew>x2+tol
-                [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
+                [xnew,ynew]=reflectbc2(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold,dx,damp);
         else
             if ynew<0 || ynew>w
-                [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
+                [xnew,ynew]=reflectbc2(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold,dx,damp);
             elseif ynew>w/2 && xnew>x1 && xnew<xm
         %         ylim=sqrt(a(t)-xnew)+b(t);%parabola
                 ylim=(sqrt(r(t+1)^2-(xnew-a(t)).^2)+b(t))/ynorm(t);%circle
                 if ynew>ylim
-                    [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
+                    [xnew,ynew]=reflectbc2(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold,dx,damp);
                 end
             elseif ynew<w/2 && xnew>x1 && xnew<xm
         %         ylim=1-(sqrt(a(t)-xnew)+b(t));%parabola
                 ylim=w-(sqrt(r(t+1)^2-(xnew-a(t)).^2)+b(t))/ynorm(t);%circle
                 if ynew<ylim
-                    [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
+                    [xnew,ynew]=reflectbc2(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold,dx,damp);
                 end
             elseif ynew>w/2 && xnew>xm && xnew<x2
         %         ylim=sqrt(a(t)-(2*xm-xnew))+b(t);%parabola
                 ylim=(sqrt(r(t+1)^2-((2*xm-xnew)-a(t)).^2)+b(t))/ynorm(t);%circle
                 if ynew>ylim
-                    [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
+                    [xnew,ynew]=reflectbc2(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold,dx,damp);
                 end
             elseif ynew<w/2 && xnew>xm && xnew<x2
         %         ylim=1-(sqrt(a(t)-(2*xm-xnew))+b(t));%parabola
                 ylim=w-(sqrt(r(t+1)^2-((2*xm-xnew)-a(t)).^2)+b(t))/ynorm(t);%circle
                 if ynew<ylim
-                    [xnew,ynew]=truncircsh(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold);
+                    [xnew,ynew]=reflectbc2(a(t),b(t),r(t+1),ynorm(t),x1,x2,xm,w,L,xnew,ynew,xold,yold,dx,damp);
                 end
+                
                 %uncomment if all domain
         %     elseif ynew>w/2 && xnew<Al
         %         ylim=(sqrt(R^2-(xnew-Al).^2)+B);%circle

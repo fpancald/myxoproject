@@ -1,3 +1,5 @@
+
+tic
 clear all
 D=0.025;
 % x1=4;
@@ -10,8 +12,10 @@ L=10;
 w=1;
 T=100;
 N=1000000;
-[xp,yp]=stat_2d_diff_romr3(D,x1,x2,xm,w,N,T,L);
 Nx=100;
+
+[xp,yp]=stat_2d_diff_romr3(D,x1,x2,xm,w,N,T,L,Nx);
+
 x=x1:(x2-x1)/Nx:x2;%close to center
 % x=0:L/Nx:L;%all somain
 % T=size(xp,2);
@@ -120,3 +124,4 @@ for k=0:20:T
         plot(xx,Cnorm(:,T)')
     end
 end
+toc

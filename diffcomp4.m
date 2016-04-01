@@ -1,0 +1,36 @@
+function D=diffcomp4(XP,T,N,Nx,L,x1,x2,dt)
+% x1=4.995;
+% x2=5.005;
+ x=0:(x2-x1)/Nx:L;%all domain
+%x=x1:(x2-x1)/Nx:x2;%close to center only
+% dx=cell(length(x)-1,T-1);
+for i=1:length(x)-1
+    for t=1:T-1
+        dx{i,t}=[];
+    end
+end
+tic
+for t=1:T-1
+%         dx{i,t}=[];
+    for h=1:length(XP)
+        xp=XP{h};
+        for n=1:N
+            if xp(n,t)>=x1 && xp(n,t)<=x2
+                i=locator1d(xp(n,t),x1,x2,(x2-x1)/Nx);
+                dxp=xp(n,t+1)-xp(n,t);
+                dx{i,t}=[dx{i,t} dxp];
+    %                     break;   
+            end
+        end
+    end
+end
+toc
+D=zeros(length(x)-1,T-1);
+for i=1:length(x)-1
+    for t=1:T-1
+        S=var(dx{i,t});
+%         S=sum(dx{i,t}.^2)/length(dx{i,t});
+        D(i,t)=S/(2*dt);
+    end
+end
+end

@@ -1,0 +1,68 @@
+test=u5+u6;
+
+% lflag(1)=0;
+% rflag(1)=0;
+% for it=10:length(t)
+%     if test(it,1)>test(it-1,1)
+%         lflag(it)=1;
+%     elseif test(it,1)<test(it-1,1)  
+%         lflag(it)=-1;
+%     else
+%         lflag(it)=0;
+%     end
+%     
+%     if test(it,end)>test(it-1,end)
+%         rflag(it)=1;
+%     elseif test(it,end)<test(it-1,end) 
+%         rflag(it)=-1;
+%     else
+%         rflag(it)=0;
+%     end
+% end
+% nlp=0;
+% nrp=0;
+% for it=2:length(t)
+%     if lflag(it)==-1 && lflag(it-1)==1
+%         nlp=nlp+1;
+%         lpeak(nlp)=t(it);
+%     end
+%     if rflag(it)==-1 && rflag(it-1)==1
+%         nrp=nrp+1;
+%         rpeak(nrp)=t(it);
+%     end
+% end
+
+%right
+%original detection of peaks
+[pks,loc,w,p]=findpeaks(test(:,end));%pks=peak value, loc=temporal index of peak, w=width of peak,p= prominence of peak
+                                                            %use t(loc) for actual peak times
+minp=0;
+sortp=sort(p,'descend');
+for i=1:length(p)-1
+    if sortp(i)/5>sortp(i+1)
+        minp=sortp(i);
+        break;
+    end
+end
+%new detection
+[npks,nloc,nw,np]=findpeaks(test(:,end),'MinPeakProminence',minp);%pks=peak value, loc=temporal index of peak, w=width of peak,p= prominence of peak
+                                                            %use t(loc) for actual peak times
+ntloc=t(nloc);
+
+%left
+[pks,loc,w,p]=findpeaks(test(:,1));%pks=peak value, loc=temporal index of peak, w=width of peak,p= prominence of peak
+                                                            %use t(loc) for actual peak times
+minp=0;
+sortp=sort(p,'descend');
+for i=1:length(p)-1
+    if sortp(i)/5>sortp(i+1)
+        minp=sortp(i);
+        break;
+    end
+end
+%new detection
+[npks,nloc,nw,np]=findpeaks(test(:,1),'MinPeakProminence',minp);%pks=peak value, loc=temporal index of peak, w=width of peak,p= prominence of peak
+                                                            %use t(loc) for actual peak times
+ntloc=t(nloc);
+                                                         
+

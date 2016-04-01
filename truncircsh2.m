@@ -1,26 +1,26 @@
-function [xx,yy]=truncircsh(a,b,r,ynorm,x1,x2,xm,w,L,xnew,ynew,xold,yold)
+function [xx,yy]=truncircsh2(a,b,r,ynorm,x1,x2,xm,w,L,xnew,ynew,xold,yold,dxx)
 format long
-tol=1e-6;
-xtol=1e-3;
+tol=dxx;
+xtol=dxx*10;
 N=ceil(max(abs(xnew-xold),abs(ynew-yold))/xtol);
 m=200;
 
 if abs(xnew-xold)<xtol
-    x=xold*ones(1,N*m+1);
+    x=xold*ones(1,N*m+2);
 else
 %     x=xnew:(xold-xnew)/N:xold-(m-1)*(xnew-xold);%from new to old
     x=xold:-(xold-xnew)/N:xnew;
 end
 if abs(ynew-yold)<xtol
-    y=yold*ones(1,N*m+1);
+    y=yold*ones(1,N*m+2);
 else
 %     y=ynew:(yold-ynew)/N:yold-(m-1)*(ynew-yold);%from new to old
     y=yold:-(yold-ynew)/N:ynew;
 end
 
 
-% i=2;
-i=1;
+i=2;
+
 
 % %plot check
 % close all
@@ -63,8 +63,9 @@ while (x1-x(i)>tol || x(i)-x2>tol || y(i)-w>tol ||-y(i)>tol || (x(i)<=xm && x(i)
     if i>min(length(x),length(y))       
         break;
     end
-    i
+%     i
 end
+% i
 xx=x(i-1);
 yy=y(i-1);
 

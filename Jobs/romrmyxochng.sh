@@ -1,0 +1,12 @@
+#!/bin/csh
+#$ -t 1-1:1
+#$ -M fpancald@nd.edu
+#$ -m ae
+#$ -r y
+#$ -q long
+#$ -N rmyxochng
+
+cd ../1dpdemodel
+module load matlab/8.5
+
+matlab -nodisplay -nosplash -nojvm -r "myxoromrchng(${SGE_TASK_ID});exit"

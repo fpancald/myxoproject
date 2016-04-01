@@ -1,16 +1,29 @@
-function [xp,yp] = stat_2d_diff_romr(D,x1,x2,xm,w,N,T,L)
-%derive Fick's law-like relation from statistical simulation of proteins
+%Derive Fick's law-like relation from statistical simulation of proteins
 %moving in a 2d domain changing in time and space
-% D=0.025;
-xl=x1:0.01:xm;
-xr=xm:0.01:x2;
-y=0:0.01:w;
-% w=1;
-% x1=4;
-% x2=6;
-% xm=5;
+%use repulsive condition at the boundary (i.e. if the step goes out of the
+%boundary re/select the step)
+%Input:
+%D:diffusion coefficient in 2D domain
+%x1,x2: left and right bound for the zone close to the center (x-coord.)
+%xm: center (x-coord.)
+%N: number of particles to simulate
+%T: number of time steps to simulate
+%L: total domain length (x-coord.)
+%Nx: number of intervals in the x direction (around the center)
+%state:0 unchanged, 1 (or not zero) changing
+%Output:
+%xp,yp: NxT matrices containing the x and y coord. of each particle at each time step
+%dt: time step length correspondent to the diffusion coeffcient and lenght of space step dx chosen
+function [xp,yp,dt] = stat_2d_diff_romr(D,x1,x2,xm,w,N,T,L,Nx,state)
+xl=x1:0.01:xm;  %left of center x-coord.
+xr=xm:0.01:x2;  %right of center x-coord
+y=0:0.01:w;     %y domain 
+dx=(x2-x1)/Nx;  %space step
+dt=dx^2/(2*D);  %time step
+sigma=dx;       %std of random step in 1 dimension
 
-%poles shape
+%poles shape (set the equations for poles at domain extremities)
+%not yet used in simulation
 B=w/2;
 R=w/2;
 Al=w/2;
@@ -22,9 +35,9 @@ xrp=Ar:0.01:L;
 Srpu(1,:)=(sqrt(R^2-(xrp-Ar).^2)+B);
 Srpd(1,:)=1-(sqrt(R^2-(xrp-Ar).^2)+B);
 
+% %parabolic profile
 % ym=ones(1,T+1)*w/2;
 
-% %parabolic profile
 % ym=w:-(w/2)/T:w/2;
 % for i=1:T
 %     b(i)=(1+x1-xm-ym(i+1)^2)/(2*(1-ym(i+1)));
@@ -36,12 +49,22 @@ Srpd(1,:)=1-(sqrt(R^2-(xrp-Ar).^2)+B);
 %     Srd(i,:)=1-(sqrt(a(i)-(2*xm-xr))+b(i));
 % end
 
-%circular profile
-r=10*w/2:-(9*w/2)/T:w/2;
+%circular profile (ellipsis in x directions become semicircles at final time)
+if state==0
+    r=100*w/2*ones(1,T+1);% constant and (almost rectangular)unchanged domain
+else
+    r=10*w/2:-(9*w/2)/T:w/2; %changing domain
+end
+b=zeros(1,T);
+a=zeros(1,T);
+ynorm=zeros(1,T);
+Slu=zeros(T,length(xl));
+Sld=zeros(T,length(xl));
+Sru=zeros(T,length(xr));
+Srd=zeros(T,length(xr));
 for t=1:T
     b(t)=w/2;
     a(t)=x1;
-%     r(t+1)
     ynorm(t)=sqrt(r(t+1)^2-(x1-a(t)).^2)+b(t);
     Slu(t,:)=(sqrt(r(t+1)^2-(xl-a(t)).^2)+b(t))/ynorm(t);
     Sld(t,:)=w-(sqrt(r(t+1)^2-(xl-a(t)).^2)+b(t))/ynorm(t);
@@ -49,28 +72,7 @@ for t=1:T
     Srd(t,:)=w-(sqrt(r(t+1)^2-((2*xm-xr)-a(t)).^2)+b(t))/ynorm(t);
 end
 
-% b=0.5;
-% for i=1:length(ym)
-%     a=(x1^2-xm^2-ym(i)^2+2*ym(i)*b)/(2*(x1-xm));
-%     r=sqrt((x1-a)^2+b^2);
-%     
-%     Slu(i,:)=sqrt(r^2-(xl-a).^2)+b;
-%     Sld(i,:)=-sqrt(r^2-(xl-a).^2)+b;
-%     
-%     a=(x2^2-xm^2-ym(i)^2+2*ym(i)*b)/(2*(x2-xm));
-%     r=sqrt((x2-a)^2+b^2);
-%     Sru(i,:)=sqrt(r^2-(xr-a).^2)+b;
-%     Srd(i,:)=-sqrt(r^2-(xr-a).^2)+b;
-% end
-
-% r=0.5:0.1:1;
-% for ir=1:length(r)
-%     Slu(ir,:)=sqrt(r(ir)^2-(xl-x1).^2)+w/2;
-%     Sld(ir,:)=-sqrt(r(ir)^2-(xl-x1).^2)+w/2;
-%     Sru(ir,:)=sqrt(r(ir)^2-(xr-x2).^2)+w/2;
-%     Srd(ir,:)=-sqrt(r(ir)^2-(xr-x2).^2)+w/2;
-% end
-
+%plot domain
 figure(10)
 hold on
 % plot(xl,Slu(end,:))
@@ -96,11 +98,8 @@ for t=1:T
     end
 end
 hold off
-% xp(1)=2*rand+4;
-% yp(1)=rand;
 
-% N=1000;
-% T=10000;
+%simulation of random steps
 xp=zeros(N,T);
 yp=zeros(N,T);
 for n=1:N
@@ -123,20 +122,21 @@ while t<T+1
 %         xnew=xp(n,t-1)+cos(angle)*dist;
 %         ynew=yp(n,t-1)+sin(angle)*dist;
         
-        distx=randn*D/sqrt(2);
-        disty=randn*D/sqrt(2);
+%         distx=randn*D/sqrt(2);
+%         disty=randn*D/sqrt(2);
+        
+        distx=randn*sigma;
+        disty=randn*sigma;
+
 
         xnew=xp(n,t-1)+distx;
         ynew=yp(n,t-1)+disty;
     end
     
-%     if xnew<4
-%         xnew=6-(4-xnew);
-%     elseif xnew>6
-%         xnew=4+(xnew-6);
-%     end
-%     xp(i,t)=xnew;
-%     yp(i,t)=ynew;
+%check for new position inside current boundaries
+%1st check x-coord left and right bounds
+%2nd check y-coord overall upper and lower bound
+%3rd check (for each sector that local ylimit is not excedeed (upper or lower)
 
 % %all domain
 % if xnew<0
@@ -149,6 +149,8 @@ if xnew<x1
         t=t-1;
     elseif xnew>x2
         t=t-1;
+        
+        
 else
     xp(n,t)=xnew;
     yp(n,t)=ynew;
@@ -179,6 +181,7 @@ else
         if ynew<ylim
             t=t-1;
         end
+        
         %uncomment if all domain
 %     elseif ynew>w/2 && xnew<Al
 %         ylim=(sqrt(R^2-(xnew-Al).^2)+B);%circle
@@ -207,6 +210,8 @@ end
     t=t+1;
 end
 end
+
+%plot particles position
 % figure()
 % plot(xp,yp)
 % hold on

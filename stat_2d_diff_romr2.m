@@ -1,4 +1,4 @@
-function [xp,yp] = stat_2d_diff_romr2(D,x1,x2,xm,w,N,T,L)
+function [xp,yp,dt] = stat_2d_diff_romr2(D,x1,x2,xm,w,N,T,L,Nx)
 %derive Fick's law-like relation from statistical simulation of proteins
 %moving in a 2d domain changing in time and space
 % D=0.025;
@@ -9,7 +9,9 @@ y=0:0.01:w;
 % x1=4;
 % x2=6;
 % xm=5;
-
+dx=(x2-x1)/Nx;
+dt=dx^2/(2*D);
+sigma=dx;
 %poles shape
 B=w/2;
 R=w/2;
@@ -37,7 +39,8 @@ Srpd(1,:)=1-(sqrt(R^2-(xrp-Ar).^2)+B);
 % end
 
 %circular profile
-r=10*w/2:-(9*w/2)/T:w/2;
+r=100*w/2*ones(1,T+1);
+% r=10*w/2:-(9*w/2)/T:w/2;
 for t=1:T
     b(t)=w/2;
     a(t)=x1;
@@ -117,11 +120,21 @@ while t<T+1
         
     else
     
-        angle=rand*2*pi;
-        dist=randn*D;
+%         angle=rand*pi;
+%         dist=randn*D;
+% 
+%         xnew=xp(n,t-1)+cos(angle)*dist;
+%         ynew=yp(n,t-1)+sin(angle)*dist;
+        
+%         distx=randn*D/sqrt(2);
+%         disty=randn*D/sqrt(2);
+        
+        distx=randn*sigma;
+        disty=randn*sigma;
 
-        xnew=xp(n,t-1)+cos(angle)*dist;
-        ynew=yp(n,t-1)+sin(angle)*dist;
+
+        xnew=xp(n,t-1)+distx;
+        ynew=yp(n,t-1)+disty;
     end
     
 %     if xnew<4
